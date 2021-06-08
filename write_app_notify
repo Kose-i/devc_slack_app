@@ -1,0 +1,51 @@
+###
+token_number = "XXXXXXXXXXXXXXXXXXXXXXXXXX"
+channel_id = "XXXXXXXXXXXXXXX"
+###
+
+# Sample Code
+
+import logging
+import os
+# Import WebClient from Python SDK (github.com/slackapi/python-slack-sdk)
+
+from slack_sdk import WebClient
+from slack_sdk.errors import SlackApiError
+
+client = WebClient(token=os.environ.get("SLACK_BOT_TOKEN"))
+logger = logging.getLogger(__name__)
+
+import datetime
+import time
+
+dt_list = [
+    [datetime.datetime(year=2021, month=6, day=8, hour=20, minute=22),"spi-1"],
+    [datetime.datetime(year=2021, month=6, day=8, hour=20, minute=23),"spi-2"]
+    ]
+
+def call_func(text_msg):
+    try:
+        # Call the chat.postMessage method using the WebClient
+        result = client.chat_postMessage(
+            token=token_number,
+            channel=channel_id, 
+            text=text_msg
+        )
+        logger.info(result)
+    
+    except SlackApiError as e:
+        logger.error(f"Error posting message: {e}")
+
+while True:
+    dt_now = datetime.datetime.now() - datetime.timedelta(hours=8, minutes=25)
+    print(dt_now)
+    for i, (e, msg) in enumerate(dt_list):
+        print(e)
+        if dt_now - e < datetime.timedelta(minutes=1):
+            call_func(msg)
+            del dt_list[i]
+    if len(dt_list) == 0:
+        break
+    time.sleep(30)
+
+call_func("END")
